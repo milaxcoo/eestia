@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eestia Sentence Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals with Muted Accents -->
+    <!-- Application Structure Plan: The application is designed as a single-view, task-oriented tool. The user's primary goal is to build a sentence and see its dual manifestations. This structure was chosen for its directness and clarity, avoiding unnecessary navigation or sections. The information architecture is flat: controls at the top, and side-by-side results below. This allows for immediate cause-and-effect learning as the user manipulates the inputs and instantly sees the grammatical output, reinforcing the core concept of Eestia's duality. -->
+    <!-- Visualization & Content Choices: The core of the application is not a chart but a dynamic text display. Goal: Compare the two grammatical systems. Method: Side-by-side text blocks. Interaction: Dropdown menus for word selection and toggles for grammatical features (tense, particle style). Justification: This direct comparison is the most effective way to teach the structural differences (SVO vs. SOV, auxiliaries vs. particles). The "visualization" is the sentence structure itself, made interactive. Library/Method: Vanilla JavaScript for DOM manipulation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3D3B38;
+        }
+        .kana {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .builder-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAE8E4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .select-input {
+            background-color: #F7F5F2;
+            border: 1px solid #EAE8E4;
+            color: #3D3B38;
+        }
+        .output-panel {
+            background-color: #F7F5F2;
+            border: 1px solid #EAE8E4;
+        }
+        .output-title {
+            color: #8A8784;
+            border-bottom: 1px solid #EAE8E4;
+        }
+        .sentence-display {
+            color: #0B0A0A;
+            min-height: 3rem;
+        }
+        .toggle-label {
+            color: #5E5B58;
+        }
+        /* Toggle Switch CSS */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #A89C90;
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #A89C90;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2">Eestia Sentence Builder</h1>
+            <p class="text-lg text-gray-600">An Interactive Tool for Exploring the Core Duality</p>
+        </header>
+
+        <main class="builder-card rounded-xl p-6 md:p-8">
+            
+            <section id="introduction" class="mb-8">
+                <p class="text-center text-gray-700">
+                    This tool demonstrates the central feature of Eestia: its **Core Duality**. By selecting a subject, verb, and object, you can instantly see how a single idea is expressed in two different grammatical systems. The **Informal Style** is direct and efficient (SVO), while the **Formal Style** is nuanced and literary (SOV with particles). Use the controls to explore how tense and style change the sentence structure.
+                </p>
+            </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div>
+                    <label for="subject-select" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <select id="subject-select" class="select-input w-full p-3 rounded-lg text-lg focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition"></select>
+                </div>
+                <div>
+                    <label for="verb-select" class="block text-sm font-medium text-gray-700 mb-1">Verb</label>
+                    <select id="verb-select" class="select-input w-full p-3 rounded-lg text-lg focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition"></select>
+                </div>
+                <div>
+                    <label for="object-select" class="block text-sm font-medium text-gray-700 mb-1">Object</label>
+                    <select id="object-select" class="select-input w-full p-3 rounded-lg text-lg focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition"></select>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-12 mb-8">
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="past-tense-checkbox" class="h-5 w-5 rounded text-amber-700 focus:ring-amber-600 border-gray-300">
+                    <label for="past-tense-checkbox" class="toggle-label text-lg">Apply Past Tense</label>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="toggle-label text-lg">Formal Particles: Latin</span>
+                    <label class="switch">
+                        <input type="checkbox" id="particle-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label text-lg kana">Kana (かな)</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="output-panel rounded-lg p-4">
+                    <h3 class="output-title text-sm font-bold uppercase tracking-wider pb-2 mb-3">Informal Style (SVO)</h3>
+                    <p id="informal-output" class="sentence-display text-2xl md:text-3xl font-semibold break-words"></p>
+                    <p class="text-sm text-gray-600 mt-2">Uses SVO (Subject-Verb-Object) word order. Efficient and direct. Note the copula drop (`is` is omitted with adjectives).</p>
+                </div>
+                <div class="output-panel rounded-lg p-4">
+                    <h3 class="output-title text-sm font-bold uppercase tracking-wider pb-2 mb-3">Formal Style (SOV)</h3>
+                    <p id="formal-output" class="sentence-display text-2xl md:text-3xl font-semibold break-words"></p>
+                    <p class="text-sm text-gray-600 mt-2">Uses SOV (Subject-Object-Verb) word order with particles (`hā`/`は`, `ō`/`を`) to mark grammatical roles. Literary and nuanced.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="text-center mt-8">
+            <p class="text-sm text-gray-500">Based on the "Eestia: A Formalized Reference" (v3.1). Built with Vanilla JS and Tailwind CSS.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const lexicon = {
+            subjects: [
+                { eestia: 'Ø', english: 'I', type: 'pronoun' },
+                { eestia: 'iinima', english: 'person', type: 'noun' },
+                { eestia: 'paapa', english: 'father', type: 'noun' },
+                { eestia: 'saama', english: 'mother', type: 'noun' },
+                { eestia: 'miis', english: 'man', type: 'noun' },
+                { eestia: 'naainen', english: 'woman', type: 'noun' },
+                { eestia: 'lapsa', english: 'child', type: 'noun' },
+                { eestia: 'yöstävä', english: 'friend', type: 'noun' },
+                { eestia: 'siina', english: 'you (sg)', type: 'pronoun' },
+                { eestia: 'heena', english: 'he/she/it', type: 'pronoun' },
+                { eestia: 'meea', english: 'we', type: 'pronoun' },
+                { eestia: 'teea', english: 'you (pl)', type: 'pronoun' },
+                { eestia: 'heeva', english: 'they', type: 'pronoun' },
+            ],
+            verbs: [
+                { eestia: 'olema', english: 'to be', type: 'verb' },
+                { eestia: 'neen', english: 'to see', type: 'verb' },
+                { eestia: 'taanun', english: 'to read/study', type: 'verb' },
+                { eestia: 'anan', english: 'to give', type: 'verb' },
+                { eestia: 'deela', english: 'to do/make', type: 'verb' },
+                { eestia: 'haluun', english: 'to want', type: 'verb' },
+                { eestia: 'kuulen', english: 'to hear', type: 'verb' },
+                { eestia: 'seelen', english: 'to say/tell', type: 'verb' },
+                { eestia: 'znaanun', english: 'to know', type: 'verb' },
+                { eestia: 'kirjootan', english: 'to write', type: 'verb' },
+                { eestia: 'syön', english: 'to eat', type: 'verb' },
+                { eestia: 'juun', english: 'to drink', type: 'verb' },
+                { eestia: 'meenen', english: 'to go', type: 'verb' },
+                { eestia: 'ajattelen', english: 'to think', type: 'verb' },
+            ],
+            objects: [
+                { eestia: 'kitaaba', english: 'book', type: 'noun' },
+                { eestia: 'koora', english: 'house', type: 'noun' },
+                { eestia: 'veesi', english: 'water', type: 'noun' },
+                { eestia: 'maata', english: 'land', type: 'noun' },
+                { eestia: 'ruuka', english: 'food', type: 'noun' },
+                { eestia: 'aika', english: 'time', type: 'noun' },
+                { eestia: 'soona', english: 'word', type: 'noun' },
+                { eestia: 'hüüva', english: 'good', type: 'adjective' },
+                { eestia: 'paaha', english: 'bad', type: 'adjective' },
+                { eestia: 'suura', english: 'big', type: 'adjective' },
+                { eestia: 'piina', english: 'small', type: 'adjective' },
+                { eestia: 'kaava', english: 'beautiful', type: 'adjective' },
+                { eestia: 'uuta', english: 'new', type: 'adjective' },
+                { eestia: 'vaana', english: 'old', type: 'adjective' },
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const subjectSelect = document.getElementById('subject-select');
+            const verbSelect = document.getElementById('verb-select');
+            const objectSelect = document.getElementById('object-select');
+            const pastTenseCheckbox = document.getElementById('past-tense-checkbox');
+            const particleToggle = document.getElementById('particle-toggle');
+
+            function populateSelect(selectElement, items) {
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.eestia;
+                    option.textContent = `${item.eestia} (${item.english})`;
+                    selectElement.appendChild(option);
+                });
+            }
+
+            populateSelect(subjectSelect, lexicon.subjects);
+            populateSelect(verbSelect, lexicon.verbs);
+            populateSelect(objectSelect, lexicon.objects);
+
+            function generateInformalSentence(s, v, o, isPast) {
+                if (!s || !v || !o) return '';
+                
+                if (v.eestia === 'olema' && o.type === 'adjective') {
+                    return `${s.eestia} ${o.eestia}.`;
+                }
+
+                let verbPart = v.eestia;
+                if (isPast) {
+                    verbPart = `ol ${v.eestia}`;
+                }
+
+                return `${s.eestia} ${verbPart} ${o.eestia}.`;
+            }
+
+            function generateFormalSentence(s, v, o, isPast, useKana) {
+                if (!s || !v || !o) return '';
+
+                const particles = {
+                    topic: useKana ? 'は' : 'hā',
+                    object: useKana ? 'を' : 'ō',
+                    past: useKana ? 'き' : 'ki'
+                };
+
+                let verbPart = v.eestia;
+                if (isPast) {
+                    verbPart = `${v.eestia} ${particles.past}`;
+                }
+
+                const subjectPart = `<span class="whitespace-nowrap">${s.eestia} <span class="kana">${particles.topic}</span></span>`;
+                const objectPart = `<span class="whitespace-nowrap">${o.eestia} <span class="kana">${particles.object}</span></span>`;
+                
+                return `${subjectPart} ${objectPart} ${verbPart}.`;
+            }
+
+            function updateSentences() {
+                const subjectVal = subjectSelect.value;
+                const verbVal = verbSelect.value;
+                const objectVal = objectSelect.value;
+                const isPast = pastTenseCheckbox.checked;
+                const useKana = particleToggle.checked;
+
+                const subjectObj = lexicon.subjects.find(item => item.eestia === subjectVal);
+                const verbObj = lexicon.verbs.find(item => item.eestia === verbVal);
+                const objectObj = lexicon.objects.find(item => item.eestia === objectVal);
+
+                const informalOutput = document.getElementById('informal-output');
+                const formalOutput = document.getElementById('formal-output');
+
+                const informalSentence = generateInformalSentence(subjectObj, verbObj, objectObj, isPast);
+                informalOutput.textContent = informalSentence;
+
+                const formalSentenceHTML = generateFormalSentence(subjectObj, verbObj, objectObj, isPast, useKana);
+                formalOutput.innerHTML = formalSentenceHTML;
+            }
+
+            [subjectSelect, verbSelect, objectSelect, pastTenseCheckbox, particleToggle].forEach(el => {
+                el.addEventListener('change', updateSentences);
+            });
+
+            updateSentences();
+        });
+    </script>
+</body>
+</html>

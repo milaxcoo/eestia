@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eestia: Interactive Language Reference</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Calm Neutral (Slate, Stone, Teal) -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard with four main sections accessible via a top navigation bar: 'Principles', 'Alphabet', 'Vocabulary', and a 'Grammar Lab'. This structure deconstructs the dense report into thematic, digestible parts. The core of the application is the 'Grammar Lab', which features a sentence builder. This transforms the abstract grammatical rules (SOV vs. SVO, particle usage) into a tangible, interactive experience, allowing users to see the language's core duality in action. This task-oriented design prioritizes user exploration and comparative understanding over the linear structure of the source document. -->
+    <!-- Visualization & Content Choices: 
+        - Principles: Presented as clear, styled text cards (HTML/Tailwind) for foundational knowledge. Goal: Inform.
+        - Alphabet: An HTML table for quick reference. Goal: Inform.
+        - Vocabulary: A searchable list of cards (HTML/Tailwind/JS) for easy exploration. Goal: Organize/Inform. Interaction: Live search filter.
+        - Grammar Lab: A dynamic sentence builder (HTML forms + JS) provides side-by-side comparison of Formal and Informal styles. Goal: Compare/Analyze. Interaction: Dropdown selections instantly update sentence outputs.
+        - Language Origins Chart: A horizontal bar chart (Chart.js) visualizes the etymological breakdown of the vocabulary. Goal: Analyze/Relate. Interaction: Tooltips on hover.
+        - This combination of static reference (tables, text) and dynamic tools (sentence builder, search) serves the overall goal of making a complex linguistic system accessible and explorable.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .kana {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 1.25rem;
+            color: #0f766e; /* teal-700 */
+        }
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-btn.active {
+            border-bottom-color: #0f766e; /* teal-700 */
+            color: #0d9488; /* teal-600 */
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900">Eestia</h1>
+            <p class="text-lg text-slate-600 mt-2">An Interactive Reference for a Minimalist Hybrid Language</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-slate-200 mb-8">
+            <button data-target="principles" class="nav-btn px-4 py-2 text-slate-600 hover:text-teal-600">Põhimõtted (Principles)</button>
+            <button data-target="alphabet" class="nav-btn px-4 py-2 text-slate-600 hover:text-teal-600">Aabitsa (Alphabet)</button>
+            <button data-target="vocabulary" class="nav-btn px-4 py-2 text-slate-600 hover:text-teal-600">Sõnastika (Vocabulary)</button>
+            <button data-target="grammar" class="nav-btn px-4 py-2 text-slate-600 hover:text-teal-600">Grammatika (Grammar Lab)</button>
+        </nav>
+
+        <main>
+            <!-- Principles Section -->
+            <section id="principles" class="content-section space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-3">The Core Duality: Formal vs. Informal</h2>
+                    <p class="text-slate-700 leading-relaxed">The foundational principle of Eestia is its structural duality. The language is split into two distinct systems that alter grammar and word order. The choice between them is not just about politeness, but about how information is framed. The Formal style is topic-prominent (like Japanese), focusing on "what is being talked about," while the Informal style is subject-prominent (like English), focusing on "who is doing the action."</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">Formal (Official) Style</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>Syntax:</strong> Strict Subject-Object-Verb (SOV) order.</li>
+                            <li><strong>Particles:</strong> Uses Japanese kana (<span class="kana">は, の, を</span>) to mark word functions.</li>
+                            <li><strong>Feel:</strong> Deliberate, literary, and structurally nuanced.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">Informal (Everyday) Style</h3>
+                         <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>Syntax:</strong> Simple Subject-Verb-Object (SVO) order.</li>
+                            <li><strong>Particles:</strong> Uses Latin-based words (`ha`, `noa`, `o`) which are phonetic equivalents of the kana.</li>
+                            <li><strong>Feel:</strong> Direct, conversational, and easy for rapid communication.</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-3">Phonology & Morphology</h2>
+                    <p class="text-slate-700 leading-relaxed mb-4">Eestia's sound and word-building rules are designed for consistency and a distinct Finno-Ugric aesthetic. These rules apply across both Formal and Informal styles, creating a unified phonological base.</p>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-md">
+                            <h4 class="font-bold text-slate-800">Vowel Harmony</h4>
+                            <p class="text-sm text-slate-600">Back vowels (a, o, u) and Front vowels (ö, ü) cannot mix in the same word root. Neutral vowels (e, i) can go with either group.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-md">
+                            <h4 class="font-bold text-slate-800">Vowel-Doubling Stress</h4>
+                            <p class="text-sm text-slate-600">Phonetic stress is always marked by doubling the vowel, e.g., `maata` /'ma:ta/.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-md">
+                            <h4 class="font-bold text-slate-800">The `-a` Suffix</h4>
+                            <p class="text-sm text-slate-600">Most nouns and adjectives are designed to end with the vowel `-a`, providing grammatical clarity.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alphabet Section -->
+            <section id="alphabet" class="content-section">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-4">The Eestia Alphabet (Aabitsa)</h2>
+                    <p class="text-slate-600 mb-6">The Eestia phonemic inventory is minimalist, drawing primarily from Finno-Ugric languages. It features a seven-vowel system crucial for vowel harmony and a lean consonant inventory that avoids complex clusters.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-3 font-semibold text-sm text-slate-700">Grapheme</th>
+                                    <th class="p-3 font-semibold text-sm text-slate-700">IPA</th>
+                                    <th class="p-3 font-semibold text-sm text-slate-700">Vowel Harmony Group</th>
+                                    <th class="p-3 font-semibold text-sm text-slate-700 hidden md:table-cell">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alphabet-table-body" class="bg-white">
+                                <!-- JS will populate this -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vocabulary Section -->
+            <section id="vocabulary" class="content-section">
+                 <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-2">Foundational Lexicon (Sõnastika)</h2>
+                    <p class="text-slate-600 mb-4">This core vocabulary demonstrates the language's etymological blend from its source languages. Use the search to filter words by their Eestia or English names. This section also includes a chart visualizing the source language distribution in this core set.</p>
+                    <input type="text" id="vocab-search" placeholder="Search vocabulary..." class="w-full p-3 mb-6 border border-slate-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none">
+                    <div id="vocabulary-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <!-- JS will populate this -->
+                    </div>
+                    <h3 class="text-xl font-bold text-teal-700 mb-4 text-center">Vocabulary Source Language Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="language-origin-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grammar Section -->
+            <section id="grammar" class="content-section">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-2">Grammar Lab</h2>
+                    <p class="text-slate-600 mb-6">This interactive tool allows you to build simple sentences and see how they are constructed in both Formal and Informal Eestia. Select a subject, verb, and object to see the language's core duality—the difference in word order and particle usage—in real time. This demonstrates how changing the style fundamentally changes the sentence structure.</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6 p-4 bg-slate-50 rounded-lg border">
+                        <div>
+                            <label for="sentence-subject" class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                            <select id="sentence-subject" class="w-full p-2 border border-slate-300 rounded-md">
+                                <option value="iinima">iinima (person)</option>
+                                <option value="paapa">paapa (father)</option>
+                                <option value="saama">saama (mother)</option>
+                                <option value="Ø">(Ø) I</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sentence-verb" class="block text-sm font-medium text-slate-700 mb-1">Verb</label>
+                            <select id="sentence-verb" class="w-full p-2 border border-slate-300 rounded-md">
+                                <option value="neen">neen (to see)</option>
+                                <option value="anan">anan (to give)</option>
+                                <option value="taanun">taanun (to read)</option>
+                                <option value="tuulen">tuulen (to come)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sentence-object" class="block text-sm font-medium text-slate-700 mb-1">Object</label>
+                            <select id="sentence-object" class="w-full p-2 border border-slate-300 rounded-md">
+                                <option value="kitaaba">kitaaba (book)</option>
+                                <option value="suura maata">suura maata (big land)</option>
+                                <option value="koora">koora (house)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Formal Result -->
+                        <div class="border border-teal-200 bg-teal-50/50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-teal-800 mb-3">Formal Style (SOV)</h3>
+                            <p class="text-sm text-slate-600 mb-4">Structure: Subject + <span class="font-mono text-teal-700">Particle</span> + Object + <span class="font-mono text-teal-700">Particle</span> + Verb</p>
+                            <div id="formal-output" class="bg-white p-4 rounded-md text-lg text-slate-900 font-medium h-24 flex items-center justify-center text-center">
+                                <!-- JS will populate this -->
+                            </div>
+                        </div>
+                        <!-- Informal Result -->
+                        <div class="border border-slate-300 bg-slate-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-3">Informal Style (SVO)</h3>
+                            <p class="text-sm text-slate-600 mb-4">Structure: Subject + Verb + Object</p>
+                            <div id="informal-output" class="bg-white p-4 rounded-md text-lg text-slate-900 font-medium h-24 flex items-center justify-center text-center">
+                                <!-- JS will populate this -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = {
+                alphabet: [
+                    { grapheme: 'A a', ipa: '/a/', harmony: 'Back', notes: "Open back unrounded vowel, like 'father'." },
+                    { grapheme: 'E e', ipa: '/e/', harmony: 'Neutral', notes: "Mid front unrounded vowel, as in 'bed'." },
+                    { grapheme: 'H h', ipa: '/h/', harmony: '-', notes: 'Voiceless glottal fricative.' },
+                    { grapheme: 'I i', ipa: '/i/', harmony: 'Neutral', notes: "Close front unrounded vowel, as in 'machine'." },
+                    { grapheme: 'J j', ipa: '/j/', harmony: '-', notes: "Palatal approximant, as in 'yes'." },
+                    { grapheme: 'K k', ipa: '/k/', harmony: '-', notes: 'Voiceless unaspirated velar plosive.' },
+                    { grapheme: 'L l', ipa: '/l/', harmony: '-', notes: 'Clear (non-velarized) alveolar lateral approximant.' },
+                    { grapheme: 'M m', ipa: '/m/', harmony: '-', notes: 'Bilabial nasal.' },
+                    { grapheme: 'N n', ipa: '/n/', harmony: '-', notes: 'Alveolar nasal.' },
+                    { grapheme: 'O o', ipa: '/o/', harmony: 'Back', notes: "Mid back rounded vowel, as in 'story'." },
+                    { grapheme: 'Ö ö', ipa: '/ø/', harmony: 'Front', notes: "Close-mid front rounded vowel, like German 'schön'." },
+                    { grapheme: 'P p', ipa: '/p/', harmony: '-', notes: 'Voiceless unaspirated bilabial plosive.' },
+                    { grapheme: 'R r', ipa: '/r/', harmony: '-', notes: 'An alveolar trill.' },
+                    { grapheme: 'S s', ipa: '/s/', harmony: '-', notes: 'Voiceless alveolar sibilant.' },
+                    { grapheme: 'T t', ipa: '/t/', harmony: '-', notes: 'Voiceless unaspirated dental/alveolar plosive.' },
+                    { grapheme: 'U u', ipa: '/u/', harmony: 'Back', notes: "Close back rounded vowel, as in 'rude'." },
+                    { grapheme: 'Ü ü', ipa: '/y/', harmony: 'Front', notes: "Close front rounded vowel, like German 'für'." },
+                    { grapheme: 'V v', ipa: '/v/', harmony: '-', notes: 'Labiodental approximant [ʋ], as in Finnish.' },
+                ],
+                vocabulary: [
+                    { eestia: 'maata', pos: 'Noun', english: 'land, country', origin: 'Finnish' },
+                    { eestia: 'iinima', pos: 'Noun', english: 'person, human', origin: 'Estonian' },
+                    { eestia: 'veesi', pos: 'Noun', english: 'water', origin: 'Finnish' },
+                    { eestia: 'kiivi', pos: 'Noun', english: 'stone', origin: 'Estonian' },
+                    { eestia: 'taasi', pos: 'Noun', english: 'cup, glass', origin: 'Russian' },
+                    { eestia: 'kitaaba', pos: 'Noun', english: 'book', origin: 'Arabic' },
+                    { eestia: 'soona', pos: 'Noun', english: 'word', origin: 'Russian' },
+                    { eestia: 'peeva', pos: 'Noun', english: 'day', origin: 'Finnish' },
+                    { eestia: 'öösa', pos: 'Noun', english: 'night', origin: 'Estonian' },
+                    { eestia: 'tuuli', pos: 'Noun', english: 'wind', origin: 'Finnish' },
+                    { eestia: 'saama', pos: 'Noun', english: 'mother', origin: 'Japanese' },
+                    { eestia: 'paapa', pos: 'Noun', english: 'father', origin: 'Russian' },
+                    { eestia: 'koora', pos: 'Noun', english: 'house', origin: 'Russian' },
+                    { eestia: 'ruuka', pos: 'Noun', english: 'hand', origin: 'Russian' },
+                    { eestia: 'siilma', pos: 'Noun', english: 'eye', origin: 'Finnish' },
+                    { eestia: 'suura', pos: 'Adjective', english: 'big, large', origin: 'Finnish' },
+                    { eestia: 'piina', pos: 'Adjective', english: 'small', origin: 'Finnish' },
+                    { eestia: 'uuta', pos: 'Adjective', english: 'new', origin: 'Finnish' },
+                    { eestia: 'vaana', pos: 'Adjective', english: 'old', origin: 'Estonian' },
+                    { eestia: 'hüüva', pos: 'Adjective', english: 'good', origin: 'Estonian' },
+                    { eestia: 'paaha', pos: 'Adjective', english: 'bad', origin: 'Finnish' },
+                    { eestia: 'kaava', pos: 'Adjective', english: 'beautiful', origin: 'Russian' },
+                    { eestia: 'siina', pos: 'Adjective', english: 'blue', origin: 'Russian' },
+                    { eestia: 'puuna', pos: 'Adjective', english: 'red', origin: 'Finnish' },
+                    { eestia: 'olema', pos: 'Verb', english: 'to be', origin: 'Estonian' },
+                    { eestia: 'taanun', pos: 'Verb', english: 'to read, to study', origin: 'Hybrid' },
+                    { eestia: 'neen', pos: 'Verb', english: 'to see', origin: 'Estonian' },
+                    { eestia: 'kuulen', pos: 'Verb', english: 'to hear', origin: 'Finnish' },
+                    { eestia: 'soonin', pos: 'Verb', english: 'to speak, to say', origin: 'Hybrid' },
+                    { eestia: 'meenen', pos: 'Verb', english: 'to go', origin: 'Finnish' },
+                    { eestia: 'tuulen', pos: 'Verb', english: 'to come', origin: 'Finnish' },
+                    { eestia: 'tekeen', pos: 'Verb', english: 'to do, to make', origin: 'Finnish' },
+                    { eestia: 'saadan', pos: 'Verb', english: 'to get, to receive', origin: 'Finnish' },
+                    { eestia: 'anan', pos: 'Verb', english: 'to give', origin: 'Finnish' },
+                    { eestia: 'tiien', pos: 'Verb', english: 'to know', origin: 'Finnish' },
+                    { eestia: 'ja', pos: 'Conjunction', english: 'and', origin: 'Finnish/Estonian' },
+                    { eestia: 'vai', pos: 'Conjunction', english: 'or', origin: 'Finnish' },
+                    { eestia: 'ku', pos: 'Conjunction', english: 'when, if', origin: 'Estonian' },
+                    { eestia: 'et', pos: 'Conjunction', english: 'that', origin: 'Estonian' },
+                    { eestia: 'ha', pos: 'Particle', english: '(topic)', origin: 'Japanese' },
+                    { eestia: 'ga', pos: 'Particle', english: '(identifier)', origin: 'Japanese' },
+                    { eestia: 'noa', pos: 'Particle', english: '(possession)', origin: 'Japanese' },
+                    { eestia: 'o', pos: 'Particle', english: '(direct object)', origin: 'Japanese' },
+                    { eestia: 'xea', pos: 'Particle', english: '(location/means)', origin: 'Japanese' },
+                    { eestia: 'ni', pos: 'Particle', english: '(direction/dative)', origin: 'Japanese' },
+                    { eestia: 'ka', pos: 'Particle', english: '(question)', origin: 'Japanese' },
+                    { eestia: 'ei', pos: 'Adverb', english: 'not, no', origin: 'Estonian' },
+                    { eestia: 'on', pos: 'Verb', english: 'is', origin: 'Estonian' },
+                    { eestia: 'ol', pos: 'Auxiliary', english: '(past tense)', origin: 'English' },
+                    { eestia: 'vil', pos: 'Auxiliary', english: '(future tense)', origin: 'English' },
+                ]
+            };
+
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function switchTab(targetId) {
+                navButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.target === targetId);
+                });
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', section.id === targetId);
+                });
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    switchTab(button.dataset.target);
+                });
+            });
+
+            // Initial setup
+            switchTab('principles');
+
+            // Populate Alphabet
+            const alphabetTableBody = document.getElementById('alphabet-table-body');
+            data.alphabet.forEach(letter => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-200';
+                row.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900">${letter.grapheme}</td>
+                    <td class="p-3 text-slate-600">${letter.ipa}</td>
+                    <td class="p-3 text-slate-600">${letter.harmony}</td>
+                    <td class="p-3 text-slate-600 hidden md:table-cell">${letter.notes}</td>
+                `;
+                alphabetTableBody.appendChild(row);
+            });
+
+            // Populate and handle Vocabulary
+            const vocabularyList = document.getElementById('vocabulary-list');
+            const vocabSearch = document.getElementById('vocab-search');
+            
+            function renderVocabulary(filter = '') {
+                vocabularyList.innerHTML = '';
+                const filteredVocab = data.vocabulary.filter(word => 
+                    word.eestia.toLowerCase().includes(filter.toLowerCase()) ||
+                    word.english.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredVocab.length === 0) {
+                    vocabularyList.innerHTML = `<p class="text-slate-500 col-span-full text-center">No words found.</p>`;
+                    return;
+                }
+
+                filteredVocab.forEach(word => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-slate-200 p-4 rounded-lg shadow-sm';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-baseline">
+                            <h4 class="text-lg font-bold text-slate-800">${word.eestia}</h4>
+                            <span class="text-xs font-semibold text-teal-700 bg-teal-100 px-2 py-1 rounded-full">${word.pos}</span>
+                        </div>
+                        <p class="text-slate-600">${word.english}</p>
+                        <p class="text-xs text-slate-400 mt-2">Origin: ${word.origin}</p>
+                    `;
+                    vocabularyList.appendChild(card);
+                });
+            }
+
+            vocabSearch.addEventListener('input', (e) => {
+                renderVocabulary(e.target.value);
+            });
+
+            // Language Origin Chart
+            function renderLanguageChart() {
+                const origins = data.vocabulary.reduce((acc, word) => {
+                    const origin = word.origin.split('/')[0]; // Handle 'Finnish/Estonian'
+                    acc[origin] = (acc[origin] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const ctx = document.getElementById('language-origin-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(origins),
+                        datasets: [{
+                            label: '# of Words',
+                            data: Object.values(origins),
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.6)',
+                                'rgba(245, 158, 11, 0.6)',
+                                'rgba(239, 68, 68, 0.6)',
+                                'rgba(59, 130, 246, 0.6)',
+                                'rgba(139, 92, 246, 0.6)',
+                                'rgba(16, 185, 129, 0.6)',
+                                'rgba(217, 70, 239, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(15, 118, 110, 1)',
+                                'rgba(180, 83, 9, 1)',
+                                'rgba(185, 28, 28, 1)',
+                                'rgba(37, 99, 235, 1)',
+                                'rgba(124, 58, 237, 1)',
+                                'rgba(5, 150, 105, 1)',
+                                'rgba(192, 38, 211, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` ${context.raw} words`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#e2e8f0'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+
+            // Grammar Lab Logic
+            const subjectSelect = document.getElementById('sentence-subject');
+            const verbSelect = document.getElementById('sentence-verb');
+            const objectSelect = document.getElementById('sentence-object');
+            const formalOutput = document.getElementById('formal-output');
+            const informalOutput = document.getElementById('informal-output');
+
+            function generateSentence() {
+                const subject = subjectSelect.value;
+                const verb = verbSelect.value;
+                const object = objectSelect.value;
+
+                let formalSentence, informalSentence;
+                
+                const subjectText = subject === 'Ø' ? '(Ø)' : subject;
+
+                // Simple logic for demonstration
+                let topicParticle = 'は';
+                let objectParticle = 'を';
+                let locativeParticle = 'で';
+                let dativeParticle = 'に';
+
+                if (verb === 'tuulen') { // to come (from)
+                    formalSentence = `${subjectText} <span class="kana">${topicParticle}</span> ${object} <span class="kana">${locativeParticle}</span> ${verb}.`;
+                } else if (verb === 'anan') { // to give (to)
+                    // Simplified: assumes giving object to 'saama' (mother)
+                    formalSentence = `${subjectText} <span class="kana">${topicParticle}</span> saama <span class="kana">${dativeParticle}</span> ${object} <span class="kana">${objectParticle}</span> ${verb}.`;
+                } else {
+                    formalSentence = `${subjectText} <span class="kana">${topicParticle}</span> ${object} <span class="kana">${objectParticle}</span> ${verb}.`;
+                }
+                
+                informalSentence = `${subjectText} ${verb} ${object}.`;
+
+                formalOutput.innerHTML = formalSentence;
+                informalOutput.textContent = informalSentence;
+            }
+
+            [subjectSelect, verbSelect, objectSelect].forEach(select => {
+                select.addEventListener('change', generateSentence);
+            });
+
+            // Initial calls
+            renderVocabulary();
+            renderLanguageChart();
+            generateSentence();
+        });
+    </script>
+</body>
+</html>
